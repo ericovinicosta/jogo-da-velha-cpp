@@ -12,21 +12,35 @@ void show(int [][MAX]);
 char printBlock(int);
 void playMove(int [][MAX], int);
 int game(int [][MAX]);
+void scoreBoard(int, int &, int &);
 
 int main(){
-    int tabuleiro[MAX][MAX], result = 0;
+    int tabuleiro[MAX][MAX], result = 0, player1 = 0, player2 = 0;
     bool cont = true;
     char resp;
 
     do{
         init(tabuleiro);
+        scoreBoard(result, player1, player2);
         show(tabuleiro);
         result = game(tabuleiro);
+        cout << endl;
+
+        if(checkWin(tabuleiro)){
+            cout <<"A vitória foi do Jogador "<< (result%2 == 0 ? 1 : 2)  <<endl;
+        } else {
+            cout <<"Empatou - Deu Velha!!" << endl;
+            result = 0;
+        }
+
         cout << "Deseja continuar? (S/n) ";
         cin >> resp;
         if(toupper(resp) != 'S'){
+            cout << "Serie terminou" << endl;
+            scoreBoard(result, player1, player2);
             cont = false;
         }
+
     }while(cont);
 
     return 0;
@@ -36,12 +50,14 @@ int game(int tabuleiro [][MAX]){
     int turn = 0;
 
     do{
+        cout << "Rodada: "<< turn+1 << endl;
         playMove(tabuleiro, turn % 2);
         show(tabuleiro);
+
         turn++;
     }while(checkContinue(tabuleiro) && !checkWin(tabuleiro));
 
-    return turn++;
+    return --turn;
 }
 
 bool checkContinue(int tabuleiro[][MAX]){
@@ -55,6 +71,19 @@ bool checkContinue(int tabuleiro[][MAX]){
     return false;
 }
 
+void scoreBoard(int result, int &player1, int &player2){
+    if(result > 0){
+        if(result%2 == 0){
+            player1++;
+        } else {
+            player2++;
+        }
+    }
+    cout << "Placar: " << endl;
+    cout << "Jogador 1  X  Jogador 2" << endl;
+    cout << setw(10) << player1 << " X " <<player2 << endl;
+}
+
 bool checkWin(int tabuleiro[][MAX]){
     //return false somebody win
     //return true anybody win
@@ -65,26 +94,28 @@ bool checkWin(int tabuleiro[][MAX]){
         for(int col = 0; col < MAX; col++){
             sum += tabuleiro[row][col];
         }
-        if(sum == 3 || sum == -3){
+        sum = abs(sum);
+        if(sum == 3){
             return true;
         }
     }
     //check col
     for(int col = 0; col < MAX; col++){
-        int sum = 0;
+    sum = 0;
         for(int row = 0; row < MAX; row++){
             sum += tabuleiro[row][col];
         }
-        if(sum == 3 || sum == -3){
+        sum = abs(sum);
+        if(sum == 3){
             return true;
         }
     }
+
     //check diagonals
     //row == col
-    int esum, dsum;
+    int esum = 0, dsum = 0;
+
     for(int row = 0; row < MAX; row++){
-        esum = 0;
-        dsum = 0;
         for(int col = 0; col < MAX; col++){
             if(col == row){
                 esum += tabuleiro[row][col];
@@ -93,9 +124,11 @@ bool checkWin(int tabuleiro[][MAX]){
                 dsum += tabuleiro[row][col];
             }
         }
-        if(esum == 3 || esum == -3 || dsum == 3 || dsum == -3){
-            return true;
-        }
+    }
+    esum = abs(esum);
+    dsum = abs(dsum);
+    if(esum == 3 || dsum == 3){
+        return true;
     }
     //if anybody win
     return false;
@@ -122,7 +155,7 @@ void playMove(int tabuleiro[][MAX], int player){//player = 0 || 1
     else{
         tabuleiro[row][col] = -1;
     }
-    checkWin(tabuleiro);
+
 }
 
 void init(int tabuleiro[][MAX]){
