@@ -11,19 +11,27 @@ bool checkContinue(int [][MAX]);
 void show(int [][MAX]);
 char printBlock(int);
 void playMove(int [][MAX], int);
-int game(int [][MAX]);
+void playAutoMove(int [][MAX], int);
+int game(int [][MAX], int);
 void scoreBoard(int, int &, int &);
 
 int main(){
     int tabuleiro[MAX][MAX], result = 0, player1 = 0, player2 = 0;
+    int iresp;
     bool cont = true;
     char resp;
+    do{
+        cout << "Deseja jogar contra uma [P]esssoa ou contra o [C]omputador? ";
+        cin >> resp;
+    }while(toupper(resp) != 'P' && toupper(resp) != 'C');
+
+    iresp = (toupper(resp) == 'C' ? 1 : 2 );
 
     do{
         init(tabuleiro);
         scoreBoard(result, player1, player2);
         show(tabuleiro);
-        result = game(tabuleiro);
+        result = game(tabuleiro,iresp);
         cout << endl;
 
         if(checkWin(tabuleiro)){
@@ -46,12 +54,17 @@ int main(){
     return 0;
 }
 
-int game(int tabuleiro [][MAX]){
+int game(int tabuleiro [][MAX], int gamers = 2){
     int turn = 0;
 
     do{
         cout << "Rodada: "<< turn+1 << endl;
-        playMove(tabuleiro, turn % 2);
+        if(gamers == 2 || turn % 2 == 0){
+            playMove(tabuleiro, turn % 2);
+        }
+        else{
+            playAutoMove(tabuleiro, turn % 2);
+        }
         show(tabuleiro);
 
         turn++;
@@ -132,6 +145,21 @@ bool checkWin(int tabuleiro[][MAX]){
     }
     //if anybody win
     return false;
+}
+
+void playAutoMove(int tabuleiro[][MAX], int player){//player =  1
+    int row, col;
+    bool check;
+    srand(time(NULL)*1024/3075);
+    do{
+        row = rand() % 3;
+        col = rand() % 3;
+
+        check = tabuleiro[row][col] || row < 0 || row > 2 || col < 0  || col > 2;
+    }while(check);
+
+        tabuleiro[row][col] = -1;
+
 }
 
 void playMove(int tabuleiro[][MAX], int player){//player = 0 || 1
